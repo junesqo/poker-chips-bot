@@ -3,103 +3,139 @@ from telebot import types
 from config import BOT_TOKEN
 
 bot = telebot.TeleBot(BOT_TOKEN)
+chips = 1000
 
-chips=1000
+pot = 0
+bet = 0
 
-pot=0
-bet=0
 
+# this is a start command
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
     btn1 = types.KeyboardButton('сделать ход')
-    markup.add(btn1)
-    send_mess = f"<b>Привет {message.from_user.first_name} </b>!\nдавай начнем игру"
-    bot.send_message(message.chat.id, send_mess, parse_mode='html', reply_markup=markup)
+    btn2 = types.KeyboardButton('указать количество фишек')
+    markup.add(btn1, btn2)
+    send_mess = f"<b>Привет {message.from_user.first_name} </b>" \
+        f"!\nдавай начнем подсчет твоих фишек"
+    bot.send_message(
+        message.chat.id, send_mess, parse_mode='html', reply_markup=markup
+    )
 
+
+# this is a function to get a bet
 def diller(message):
     global chips
     global bet
-    get_bet = message.text.strip()
-    if message.text is int == False:
-        bot.send_message(message.from_user.id, 'Введи цифры!')
-    else:
+    try:
         bet = message.text
+        bet = int(bet)
         chips = int(chips) - int(bet)
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         bet_btn = types.KeyboardButton(text='я выиграл')
         check_btn = types.KeyboardButton(text='чек')
         fold_btn = types.KeyboardButton(text='я проиграл')
-        next_turn_btn = types.KeyboardButton(text='')
         markup.add(bet_btn, check_btn, fold_btn)
-
-        bot.send_message(message.from_user.id, 'Ваша ставка ' + bet, parse_mode='html', reply_markup=markup)
+        yourbet = 'Ваша ставка ' + bet
+        bot.send_message(
+            message.from_user.id, yourbet, reply_markup=markup
+        )
 
         bot.register_next_step_handler(message, mess)
+    except ValueError:
+        bot.send_message(message.from_user.id, 'Вы ввели не цифры')
 
-def win(message):
+
+# this is a function to edit a number of chips player wants to play
+def chipscount(message):
     global chips
-    global pot
-    get_bet = message.text.strip()
-    if message.text is int == False:
-        bot.send_message(message.from_user.id, 'Введи цифры!')
-    else:
-        pot = message.text
-        chips = int(chips) + int(pot)
-
+    try:
+        chips = message.text
+        chips = int(chips)
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         new_game_btn = types.KeyboardButton(text='сделать ход')
         markup.add(new_game_btn)
-        bot.send_message(message.from_user.id, 'Ваш выигрыш ' + str(pot) + '\nИтого у вас ' + str(chips), parse_mode='html', reply_markup=markup)
+        cctext = 'Итого у вас ' + str(chips)
+        bot.send_message(message.from_user.id, cctext, reply_markup=markup)
         bot.register_next_step_handler(message, mess)
+    except ValueError:
+        bot.send_message(message.from_user.id, 'Вы ввели не цифры')
 
+
+# win function to count player's winnings
+def win(message):
+    global chips
+    global pot
+    try:
+        pot = message.text
+        pot = int(pot)
+        chips = int(chips) + int(pot)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+        new_game_btn = types.KeyboardButton(text='сделать ход')
+        markup.add(new_game_btn)
+        wintext = 'Ваш выигрыш ' + str(pot) + '\nИтого у вас ' + str(chips)
+        bot.send_message(
+            message.from_user.id, wintext, reply_markup=markup
+        )
+        bot.register_next_step_handler(message, mess)
+    except ValueError:
+        bot.send_message(message.from_user.id, 'Вы ввели не цифры')
+
+
+# lose function to count player's loss
 def lose(message):
     global chips
     global pot
-    if message.text is int == False:
-        bot.send_message(message.from_user.id, 'Введи цифры!')
-    else:
+    try:
         pot = message.text
+        pot = int(pot)
         chips = int(chips) - int(pot)
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         new_game_btn = types.KeyboardButton(text='сделать ход')
         markup.add(new_game_btn)
-        bot.send_message(message.from_user.id, 'Ваш проигрыш ' + str(pot) + '\nИтого у вас ' + str(chips), parse_mode='html', reply_markup=markup)
+        bot.send_message(message.from_user.id, 'Ваш проигрыш ' + str(pot) +
+                         '\nИтого у вас ' + str(chips),
+                         parse_mode='html', reply_markup=markup)
         bot.register_next_step_handler(message, mess)
+    except ValueError:
+        bot.send_message(message.from_user.id, 'Вы ввели не цифры')
 
+
+# there is where all turns
 @bot.message_handler(content_types=['text'])
 def mess(message):
     global chips
     global bet
     get_message_bot = message.text.strip().lower()
 
-    #сделать ход
-    if get_message_bot == 'сделать ход' or get_message_bot == 'что будем делать?':
+    # сделать ход
+    if get_message_bot == 'сделать ход':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         bet_btn = types.KeyboardButton(text='сделать ставку')
         check_btn = types.KeyboardButton(text='чек')
         fold_btn = types.KeyboardButton(text='фолд')
         markup.add(bet_btn, check_btn, fold_btn)
         final_message = "что будем делать?"
-        bot.send_message(message.chat.id, final_message, parse_mode='html', reply_markup=markup)
+        bot.send_message(
+            message.chat.id, final_message, reply_markup=markup
+        )
+
+    elif get_message_bot == 'указать количество фишек':
+        chipsinputtext = 'введите ваше общее количество фишек'
+        bot.send_message(message.chat.id, chipsinputtext)
+        bot.register_next_step_handler(message, chipscount)
 
     elif get_message_bot == "сделать ставку":
-        #markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
-        #bet_btn = types.KeyboardButton(text='ааа')
-        #check_btn = types.KeyboardButton(text='чек')
-        #fold_btn = types.KeyboardButton(text='ббб')
-        #markup.add(bet_btn, check_btn, fold_btn)
-        bot.send_message(message.chat.id, str(chips)+'\nНапишите сумму вашей ставки', parse_mode='html')
+        bettext = str(chips)+'\nНапишите сумму вашей ставки'
+        bot.send_message(message.chat.id, bettext)
         bot.register_next_step_handler(message, diller)
 
     elif get_message_bot == "я выиграл":
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         bet = 0
-        fold_btn = types.KeyboardButton(text='начать игру')
-        markup.add(fold_btn)
-        bot.send_message(message.chat.id, str(chips)+'\nНапишите сумму вашего выигрыша', parse_mode='html', reply_markup=markup)
+        iwon = str(chips)+'\nНапишите сумму вашего выигрыша'
+        bot.send_message(message.chat.id, iwon)
         bot.register_next_step_handler(message, win)
 
     elif get_message_bot == 'чек':
@@ -112,17 +148,17 @@ def mess(message):
         markup.row(bet_btn, check_btn, fold_btn)
         markup.row(win_btn, lose_btn)
         final_message = "что будем делать?"
-        bot.send_message(message.chat.id, final_message, parse_mode='html', reply_markup=markup)
+        bot.send_message(
+            message.chat.id, final_message, reply_markup=markup
+        )
 
-    #проигрыш
+    # проигрыш
     elif get_message_bot == "фолд" or get_message_bot == "я проиграл":
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
         bet = 0
-        fold_btn = types.KeyboardButton(text='начать игру')
-        markup.add(fold_btn)
-        bot.send_message(message.chat.id, str(chips)+'\nНапишите сумму вашего проигрыша', parse_mode='html', reply_markup=markup)
+        losetext = str(chips)+'\nНапишите сумму вашего проигрыша'
+        bot.send_message(message.chat.id, losetext)
         bot.register_next_step_handler(message, lose)
 
-    #else:
 
+# to continue bot working
 bot.polling(none_stop=True, interval=0)
