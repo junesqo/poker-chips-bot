@@ -37,7 +37,11 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
+<<<<<<< HEAD
 VIRTUAL_ENV="C:\Users\User\PycharmProjects\pythonProject1\venv"
+=======
+VIRTUAL_ENV="C:\Users\User\PycharmProjects\pythonProject\venv"
+>>>>>>> 557f09512dd692c872da2751de43491072b5e06e
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

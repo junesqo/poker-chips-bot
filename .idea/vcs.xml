@@ -2,6 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+<<<<<<< HEAD
     <mapping directory="$PROJECT_DIR$/pyTelegramBotAPI" vcs="Git" />
+=======
+>>>>>>> 557f09512dd692c872da2751de43491072b5e06e
   </component>
 </project>
