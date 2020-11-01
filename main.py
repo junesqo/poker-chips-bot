@@ -33,10 +33,13 @@ def diller(message):
         chips = int(chips) - int(bet)
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
-        bet_btn = types.KeyboardButton(text='я выиграл')
+        bet_btn = types.KeyboardButton(text='сделать ставку')
         check_btn = types.KeyboardButton(text='чек')
-        fold_btn = types.KeyboardButton(text='я проиграл')
-        markup.add(bet_btn, check_btn, fold_btn)
+        fold_btn = types.KeyboardButton(text='фолд')
+        win_btn = types.KeyboardButton(text='я выиграл')
+        lose_btn = types.KeyboardButton(text='я проиграл')
+        markup.row(bet_btn, check_btn, fold_btn)
+        markup.row(win_btn, lose_btn)
         yourbet = 'Ваша ставка ' + str(bet)
         bot.send_message(
             message.from_user.id, yourbet, reply_markup=markup
